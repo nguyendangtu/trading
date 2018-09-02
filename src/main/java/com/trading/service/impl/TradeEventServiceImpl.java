@@ -36,13 +36,17 @@ public class TradeEventServiceImpl implements TradeEventService {
             return;
         }
 
+        //check incoming version
         if (incomingTrade.getVersion() <= existingTrade.getVersion()) {
-            //ignore incoming trade because the version is not bigger than the existing one
+            handleIncomingTradeVersionLowerThanExistingOne(incomingTrade);
             return;
         }
 
+        //if trade id already existing into system, position must be exist base on account and security identifier
         SecurityPosition existingPosition = positionRepository.findByAccountAndInstrument(existingTrade.getAccount(),
+
                                                                                           existingTrade.getSecurityIdentifier());
+        //existing position always existing, if not exist, somebody had manual deleted from database
         if (existingPosition == null) {
             throw new RuntimeException("Some error happened. Must have existing position when having existing trade.");
         }
@@ -64,9 +68,32 @@ public class TradeEventServiceImpl implements TradeEventService {
         tradeRepository.save(incomingTrade);
     }
 
+    private void handleIncomingTradeVersionLowerThanExistingOne(Trade incomingTrade) {
+        //create a new position if not existed
+        SecurityPosition incomingPosition = positionRepository.findByAccountAndInstrument(incomingTrade.getAccount(),
+                                                                                          incomingTrade.getSecurityIdentifier());
+
+        //If incoming position is null, we need to save to database.
+        //If position already exist, we do not need to save to database when incoming version lover than existing version.
+        if (incomingPosition == null) {
+            incomingPosition = new SecurityPosition(incomingTrade.getAccount(),
+                                                    incomingTrade.getSecurityIdentifier());
+            positionRepository.save(incomingPosition);
+        }
+        //Save position-trade mapping
+        SecurityPositionTradeMapping mapping = tradeMappingRepository.findBySecurityPositionIdAndTradeId(
+                incomingPosition.getId(),
+                incomingTrade.getTradeId());
+        if (mapping == null) {
+            mapping = new SecurityPositionTradeMapping(incomingPosition.getId(),
+                                                       incomingTrade.getTradeId());
+            tradeMappingRepository.save(mapping);
+        }
+    }
+
     void handleNotExistingTrade(Trade incomingTrade) {
         //save new trade
-        tradeRepository.save(incomingTrade);
+        incomingTrade = tradeRepository.save(incomingTrade);
 
         int incomingQuantity = PositionRule.CALCULATE_QUANTITY(incomingTrade);
 
@@ -84,15 +111,15 @@ public class TradeEventServiceImpl implements TradeEventService {
     }
 
     void handleExistingTradeAndSamePosition(SecurityPosition existingPosition, int incomingQuantity,
-                                                    int existingQuantity) {
+                                            int existingQuantity) {
         int changedQuantity = incomingQuantity - existingQuantity;
         positionRepository.updateQuantity(existingPosition.getId(), changedQuantity);
     }
 
     void handleExistingTradeAndNotSamePosition(Trade incomingTrade,
-                                                       SecurityPosition existingPosition,
-                                                       int incomingQuantity,
-                                                       int existingQuantity) {
+                                               SecurityPosition existingPosition,
+                                               int incomingQuantity,
+                                               int existingQuantity) {
         SecurityPosition incomingPosition = positionRepository.findByAccountAndInstrument(incomingTrade.getAccount(),
                                                                                           incomingTrade.getSecurityIdentifier());
         incomingPosition = handleNewPosition(incomingTrade, incomingQuantity, incomingPosition);
@@ -112,13 +139,13 @@ public class TradeEventServiceImpl implements TradeEventService {
     }
 
     SecurityPosition handleNewPosition(Trade incomingTrade,
-                                               int incomingQuantity,
-                                               SecurityPosition incomingPosition) {
+                                       int incomingQuantity,
+                                       SecurityPosition incomingPosition) {
         if (incomingPosition == null) {
             incomingPosition = new SecurityPosition(incomingTrade.getAccount(),
                                                     incomingTrade.getSecurityIdentifier());
             incomingPosition.setQuantity(incomingQuantity);
-            positionRepository.save(incomingPosition);
+            incomingPosition = positionRepository.save(incomingPosition);
         } else {
             positionRepository.updateQuantity(incomingPosition.getId(), incomingQuantity);
         }

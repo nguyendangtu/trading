@@ -1,68 +1,137 @@
 package com.trading.input;
 
 import com.trading.constants.TradeConstants;
+import com.trading.domain.SecurityPosition;
+import com.trading.domain.SecurityPositionTradeMapping;
 import com.trading.domain.Trade;
 import com.trading.enums.OPERATION_ENUM;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class TradeInput {
-    public static final List<Trade> getListInputTrade() {
-        List<Trade> trades = new ArrayList<>();
-        Trade trade0 = new Trade(1234L, 1, "XYZ", 100, TradeConstants.BUY, "ACC-1234", OPERATION_ENUM.NEW);
-        Trade trade1 = new Trade(1234L, 2, "XYZ", 150, TradeConstants.BUY, "ACC-1234", OPERATION_ENUM.AMEND);
-        Trade trade2 = new Trade(5678L, 1, "QED", 200, TradeConstants.BUY, "ACC-2345", OPERATION_ENUM.NEW);
-        Trade trade3 = new Trade(5678L, 2, "QED", 0, TradeConstants.BUY, "ACC-2345", OPERATION_ENUM.CANCEL);
-        Trade trade4 = new Trade(2233L, 1, "RET", 100, TradeConstants.SELL, "ACC-3456", OPERATION_ENUM.NEW);
-        Trade trade5 = new Trade(2233L, 2, "RET", 400, TradeConstants.SELL, "ACC-3456", OPERATION_ENUM.AMEND);
-        Trade trade6 = new Trade(2233L, 3, "RET", 0, TradeConstants.SELL, "ACC-3456", OPERATION_ENUM.CANCEL);
-        Trade trade7 = new Trade(8896L, 1, "YUI", 300, TradeConstants.BUY, "ACC-4567", OPERATION_ENUM.NEW);
-        Trade trade8 = new Trade(6638L, 1, "YUI", 100, TradeConstants.SELL, "ACC-4567", OPERATION_ENUM.NEW);
-        Trade trade9 = new Trade(6363L, 1, "HJK", 200, TradeConstants.BUY, "ACC-5678", OPERATION_ENUM.NEW);
-        Trade trade10 = new Trade(7666L, 1, "HJK", 200, TradeConstants.BUY, "ACC-5678", OPERATION_ENUM.NEW);
-        Trade trade11 = new Trade(6363L, 2, "HJK", 100, TradeConstants.BUY, "ACC-5678", OPERATION_ENUM.AMEND);
-        Trade trade12 = new Trade(7666L, 2, "HJK", 50, TradeConstants.SELL, "ACC-5678", OPERATION_ENUM.AMEND);
-        Trade trade13 = new Trade(8686L, 1, "FVB", 100, TradeConstants.BUY, "ACC-6789", OPERATION_ENUM.NEW);
-        Trade trade14 = new Trade(8686L, 2, "GBN", 100, TradeConstants.BUY, "ACC-6789", OPERATION_ENUM.AMEND);
-        Trade trade15 = new Trade(9654L, 1, "FVB", 200, TradeConstants.BUY, "ACC-6789", OPERATION_ENUM.NEW);
-        Trade trade16 = new Trade(1025L, 1, "JKL", 100, TradeConstants.BUY, "ACC-7789", OPERATION_ENUM.NEW);
-        Trade trade17 = new Trade(1036L, 1, "JKL", 100, TradeConstants.BUY, "ACC-7789", OPERATION_ENUM.NEW);
-        Trade trade18 = new Trade(1025L, 2, "JKL", 100, TradeConstants.SELL, "ACC-8877", OPERATION_ENUM.AMEND);
-        Trade trade19 = new Trade(1122L, 1, "KLO", 100, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.NEW);
-        Trade trade20 = new Trade(1122L, 2, "HJK", 100, TradeConstants.SELL, "ACC-9045", OPERATION_ENUM.AMEND);
-        Trade trade21 = new Trade(1122L, 3, "KLO", 100, TradeConstants.SELL, "ACC-9045", OPERATION_ENUM.AMEND);
-        Trade trade22 = new Trade(1144L, 1, "KLO", 300, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.NEW);
-        Trade trade23 = new Trade(1144L, 2, "KLO", 400, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.AMEND);
-        Trade trade24 = new Trade(1155L, 1, "KLO", 600, TradeConstants.SELL, "ACC-9045", OPERATION_ENUM.NEW);
-        Trade trade25 = new Trade(1155L, 2, "KLO", 0, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.CANCEL);
 
-        trades.add(trade0);
-        trades.add(trade1);
-        trades.add(trade2);
-        trades.add(trade3);
-        trades.add(trade4);
-        trades.add(trade5);
-        trades.add(trade6);
-        trades.add(trade7);
-        trades.add(trade8);
-        trades.add(trade9);
-        trades.add(trade10);
-        trades.add(trade11);
-        trades.add(trade12);
-        trades.add(trade13);
-        trades.add(trade14);
-        trades.add(trade15);
-        trades.add(trade16);
-        trades.add(trade17);
-        trades.add(trade18);
-        trades.add(trade19);
-        trades.add(trade20);
-        trades.add(trade21);
-        trades.add(trade22);
-        trades.add(trade23);
-        trades.add(trade24);
-        trades.add(trade25);
+    private static final List<Trade> trades;
+
+    private static final List<SecurityPosition> expectedPositions;
+
+    static {
+        trades = new ArrayList<>();
+        trades.add(new Trade(1234L, 1, "XYZ", 100, TradeConstants.BUY, "ACC-1234", OPERATION_ENUM.NEW));
+        trades.add(new Trade(1234L, 2, "XYZ", 150, TradeConstants.BUY, "ACC-1234", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(5678L, 1, "QED", 200, TradeConstants.BUY, "ACC-2345", OPERATION_ENUM.NEW));
+        trades.add(new Trade(5678L, 2, "QED", 0, TradeConstants.BUY, "ACC-2345", OPERATION_ENUM.CANCEL));
+        trades.add(new Trade(2233L, 1, "RET", 100, TradeConstants.SELL, "ACC-3456", OPERATION_ENUM.NEW));
+        trades.add(new Trade(2233L, 2, "RET", 400, TradeConstants.SELL, "ACC-3456", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(2233L, 3, "RET", 0, TradeConstants.SELL, "ACC-3456", OPERATION_ENUM.CANCEL));
+        trades.add(new Trade(8896L, 1, "YUI", 300, TradeConstants.BUY, "ACC-4567", OPERATION_ENUM.NEW));
+        trades.add(new Trade(6638L, 1, "YUI", 100, TradeConstants.SELL, "ACC-4567", OPERATION_ENUM.NEW));
+        trades.add(new Trade(6363L, 1, "HJK", 200, TradeConstants.BUY, "ACC-5678", OPERATION_ENUM.NEW));
+        trades.add(new Trade(7666L, 1, "HJK", 200, TradeConstants.BUY, "ACC-5678", OPERATION_ENUM.NEW));
+        trades.add(new Trade(6363L, 2, "HJK", 100, TradeConstants.BUY, "ACC-5678", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(7666L, 2, "HJK", 50, TradeConstants.SELL, "ACC-5678", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(8686L, 1, "FVB", 100, TradeConstants.BUY, "ACC-6789", OPERATION_ENUM.NEW));
+        trades.add(new Trade(8686L, 2, "GBN", 100, TradeConstants.BUY, "ACC-6789", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(9654L, 1, "FVB", 200, TradeConstants.BUY, "ACC-6789", OPERATION_ENUM.NEW));
+        trades.add(new Trade(1025L, 1, "JKL", 100, TradeConstants.BUY, "ACC-7789", OPERATION_ENUM.NEW));
+        trades.add(new Trade(1036L, 1, "JKL", 100, TradeConstants.BUY, "ACC-7789", OPERATION_ENUM.NEW));
+        trades.add(new Trade(1025L, 2, "JKL", 100, TradeConstants.SELL, "ACC-8877", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(1122L, 1, "KLO", 100, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.NEW));
+        trades.add(new Trade(1122L, 2, "HJK", 100, TradeConstants.SELL, "ACC-9045", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(1122L, 3, "KLO", 100, TradeConstants.SELL, "ACC-9045", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(1144L, 1, "KLO", 300, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.NEW));
+        trades.add(new Trade(1144L, 2, "KLO", 400, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.AMEND));
+        trades.add(new Trade(1155L, 1, "KLO", 600, TradeConstants.SELL, "ACC-9045", OPERATION_ENUM.NEW));
+        trades.add(new Trade(1155L, 2, "KLO", 0, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.CANCEL));
+
+        expectedPositions = new ArrayList<>();
+        expectedPositions.add(new SecurityPosition(6,
+                                                   "ACC-1234",
+                                                   "XYZ",
+                                                   150,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(3, 1234)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(20,
+                                                   "ACC-2345",
+                                                   "QED",
+                                                   0,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(9, 5678)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(11,
+                                                   "ACC-3456",
+                                                   "RET",
+                                                   0,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(23, 2233)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(9,
+                                                   "ACC-4567",
+                                                   "YUI",
+                                                   200,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(13, 6638),
+                                                                new SecurityPositionTradeMapping(13, 8896)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(3,
+                                                   "ACC-5678",
+                                                   "HJK",
+                                                   50,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(11, 7666),
+                                                                new SecurityPositionTradeMapping(11, 6363)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(18,
+                                                   "ACC-6789",
+                                                   "GBN",
+                                                   100,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(5, 8686)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(15,
+                                                   "ACC-6789",
+                                                   "FVB",
+                                                   200,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(18, 9654),
+                                                                new SecurityPositionTradeMapping(18, 8686)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(22,
+                                                   "ACC-7789",
+                                                   "JKL",
+                                                   100,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(21, 1036),
+                                                                new SecurityPositionTradeMapping(21, 1025)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(24,
+                                                   "ACC-8877",
+                                                   "JKL",
+                                                   -100,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(7, 1025)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(1,
+                                                   "ACC-9045",
+                                                   "KLO",
+                                                   300,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(1, 1155),
+                                                                new SecurityPositionTradeMapping(1, 1122),
+                                                                new SecurityPositionTradeMapping(1, 1144)),
+                                                   null));
+        expectedPositions.add(new SecurityPosition(13,
+                                                   "ACC-9045",
+                                                   "HJK",
+                                                   0,
+                                                   Arrays.asList(new SecurityPositionTradeMapping(26, 1122)),
+                                                   null));
+    }
+
+    public static List<Trade> getTradesByNormalOrder() {
         return trades;
+    }
+
+    public static List<Trade> getTradesByRandomOrder() {
+        List<Trade> newTrades = new ArrayList<>(trades);
+        Collections.shuffle(newTrades);
+        return newTrades;
+    }
+
+    public static List<SecurityPosition> getExpectedPositions() {
+        return expectedPositions;
     }
 }

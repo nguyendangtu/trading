@@ -3,11 +3,13 @@ com\trading\enums\OPERATION_ENUM.class
 com\trading\rule\PositionRule.class
 com\trading\service\TradeEventService.class
 com\trading\domain\SecurityPosition.class
-com\trading\domain\SecurityPositionTradingMapping.class
 com\trading\constants\TradeConstants.class
 com\trading\domain\Trade.class
+com\trading\service\PositionService.class
+com\trading\repository\SecurityPositionTradeMappingRepository.class
 com\trading\repository\TradeRepository.class
 com\trading\Application.class
 com\trading\repository\SecurityPositionRepository.class
 com\trading\rule\PositionRule$1.class
-com\trading\repository\SecurityPositionTradingMappingRepository.class
+com\trading\service\impl\PositionServiceImpl.class
+com\trading\domain\SecurityPositionTradeMapping.class

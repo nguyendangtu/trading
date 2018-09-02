@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="1" failures="0" name="com.trading.service.impl.TradeEventServiceImplTest" time="0.937" errors="0" skipped="0">
+<testsuite tests="4" failures="0" name="com.trading.service.impl.TradeEventServiceImplTest" time="0.351" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_77\jre\bin"/>
@@ -63,5 +63,8 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase classname="com.trading.service.impl.TradeEventServiceImplTest" name="processIncomingEvent_firstTrade_positive" time="0.937"/>
+  <testcase classname="com.trading.service.impl.TradeEventServiceImplTest" name="testProcessIncomingEvent_HandleExistingTradeAndSamePosition_biggerVersion" time="0.178"/>
+  <testcase classname="com.trading.service.impl.TradeEventServiceImplTest" name="testProcessIncomingEvent_NotExistingTrade" time="0.015"/>
+  <testcase classname="com.trading.service.impl.TradeEventServiceImplTest" name="testProcessIncomingEvent_handleIncomingTradeVersionLowerThanExistingOne" time="0.107"/>
+  <testcase classname="com.trading.service.impl.TradeEventServiceImplTest" name="testProcessIncomingEvent_handleExistingTradeAndNotSamePosition" time="0.051"/>
 </testsuite>
