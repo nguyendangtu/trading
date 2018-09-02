@@ -54,7 +54,7 @@ public class TradeEventServiceImplTest extends BaseTest {
         Assert.assertNotNull(dbPosition);
         Assert.assertEquals(trade.getSecurityIdentifier(), dbPosition.getInstrument());
         Assert.assertEquals(trade.getAccount(), dbPosition.getAccount());
-        Assert.assertEquals(trade.getQuantity(),dbPosition.getQuantity());
+        Assert.assertEquals(trade.getQuantity(), dbPosition.getQuantity());
 
         SecurityPositionTradeMapping mapping = tradeMappingRepository.findBySecurityPositionIdAndTradeId(dbPosition.getId(),
                 dbTrade.getTradeId());
@@ -64,11 +64,11 @@ public class TradeEventServiceImplTest extends BaseTest {
     }
 
     @Test
-    public void testProcessIncomingEvent_handleIncomingTradeVersionLowerThanExistingOne(){
+    public void testProcessIncomingEvent_handleIncomingTradeVersionLowerThanExistingOne() {
         Trade trade0 = trades.get(1);
         Trade trade1 = trades.get(0);
 
-        Assert.assertEquals(trade0.getTradeId(),trade1.getTradeId());
+        Assert.assertEquals(trade0.getTradeId(), trade1.getTradeId());
         Assert.assertTrue(trade0.getVersion() > trade1.getVersion());
 
         tradeEventService.processIncomingEvent(trade0);
@@ -77,14 +77,14 @@ public class TradeEventServiceImplTest extends BaseTest {
         Trade dbTrade = tradeRepository.findByTradeId(trade1.getTradeId());
         Assert.assertNotNull(dbTrade);
         Assert.assertEquals(trade0.getSecurityIdentifier(), dbTrade.getSecurityIdentifier());
-        Assert.assertEquals(trade0.getVersion(),dbTrade.getVersion());
-        Assert.assertEquals(trade0.getAccount(),dbTrade.getAccount());
+        Assert.assertEquals(trade0.getVersion(), dbTrade.getVersion());
+        Assert.assertEquals(trade0.getAccount(), dbTrade.getAccount());
 
         SecurityPosition dbPosition = positionRepository.findByAccountAndInstrument(trade1.getAccount(), trade1.getSecurityIdentifier());
         Assert.assertNotNull(dbPosition);
         Assert.assertEquals(trade0.getSecurityIdentifier(), dbPosition.getInstrument());
         Assert.assertEquals(trade0.getAccount(), dbPosition.getAccount());
-        Assert.assertEquals(PositionRule.CALCULATE_QUANTITY(trade0),dbPosition.getQuantity());
+        Assert.assertEquals(PositionRule.CALCULATE_QUANTITY(trade0), dbPosition.getQuantity());
 
         SecurityPositionTradeMapping mapping = tradeMappingRepository.findBySecurityPositionIdAndTradeId(dbPosition.getId(),
                 dbTrade.getTradeId());
@@ -94,11 +94,11 @@ public class TradeEventServiceImplTest extends BaseTest {
     }
 
     @Test
-    public void testProcessIncomingEvent_HandleExistingTradeAndSamePosition_biggerVersion(){
+    public void testProcessIncomingEvent_HandleExistingTradeAndSamePosition_biggerVersion() {
         Trade trade0 = trades.get(0);
         Trade trade1 = trades.get(1);
 
-        Assert.assertEquals(trade0.getTradeId(),trade1.getTradeId());
+        Assert.assertEquals(trade0.getTradeId(), trade1.getTradeId());
         Assert.assertTrue(trade0.getVersion() < trade1.getVersion());
 
         tradeEventService.processIncomingEvent(trade0);
@@ -107,14 +107,14 @@ public class TradeEventServiceImplTest extends BaseTest {
         Trade dbTrade = tradeRepository.findByTradeId(trade1.getTradeId());
         Assert.assertNotNull(dbTrade);
         Assert.assertEquals(trade1.getSecurityIdentifier(), dbTrade.getSecurityIdentifier());
-        Assert.assertEquals(trade1.getVersion(),dbTrade.getVersion());
-        Assert.assertEquals(trade1.getAccount(),dbTrade.getAccount());
+        Assert.assertEquals(trade1.getVersion(), dbTrade.getVersion());
+        Assert.assertEquals(trade1.getAccount(), dbTrade.getAccount());
 
         SecurityPosition dbPosition = positionRepository.findByAccountAndInstrument(trade1.getAccount(), trade1.getSecurityIdentifier());
         Assert.assertNotNull(dbPosition);
         Assert.assertEquals(trade1.getSecurityIdentifier(), dbPosition.getInstrument());
         Assert.assertEquals(trade1.getAccount(), dbPosition.getAccount());
-        Assert.assertEquals(PositionRule.CALCULATE_QUANTITY(trade1),dbPosition.getQuantity());
+        Assert.assertEquals(PositionRule.CALCULATE_QUANTITY(trade1), dbPosition.getQuantity());
 
         SecurityPositionTradeMapping mapping = tradeMappingRepository.findBySecurityPositionIdAndTradeId(dbPosition.getId(),
                 dbTrade.getTradeId());
@@ -124,7 +124,7 @@ public class TradeEventServiceImplTest extends BaseTest {
     }
 
     @Test
-    public void testProcessIncomingEvent_handleExistingTradeAndNotSamePosition(){
+    public void testProcessIncomingEvent_handleExistingTradeAndNotSamePosition() {
         Trade trade0 = trades.get(16);
         Trade trade1 = trades.get(18);
 
@@ -134,20 +134,20 @@ public class TradeEventServiceImplTest extends BaseTest {
         Trade dbTrade = tradeRepository.findByTradeId(trade1.getTradeId());
         Assert.assertNotNull(dbTrade);
         Assert.assertEquals(trade1.getSecurityIdentifier(), dbTrade.getSecurityIdentifier());
-        Assert.assertEquals(trade1.getVersion(),dbTrade.getVersion());
-        Assert.assertEquals(trade1.getAccount(),dbTrade.getAccount());
+        Assert.assertEquals(trade1.getVersion(), dbTrade.getVersion());
+        Assert.assertEquals(trade1.getAccount(), dbTrade.getAccount());
 
         SecurityPosition dbPosition0 = positionRepository.findByAccountAndInstrument(trade0.getAccount(), trade0.getSecurityIdentifier());
         Assert.assertNotNull(dbPosition0);
         Assert.assertEquals(trade0.getSecurityIdentifier(), dbPosition0.getInstrument());
         Assert.assertEquals(trade0.getAccount(), dbPosition0.getAccount());
-        Assert.assertEquals(0,dbPosition0.getQuantity());
+        Assert.assertEquals(0, dbPosition0.getQuantity());
 
         SecurityPosition dbPosition1 = positionRepository.findByAccountAndInstrument(trade1.getAccount(), trade1.getSecurityIdentifier());
         Assert.assertNotNull(dbPosition1);
         Assert.assertEquals(trade1.getSecurityIdentifier(), dbPosition1.getInstrument());
         Assert.assertEquals(trade1.getAccount(), dbPosition1.getAccount());
-        Assert.assertEquals(PositionRule.CALCULATE_QUANTITY(trade1),dbPosition1.getQuantity());
+        Assert.assertEquals(PositionRule.CALCULATE_QUANTITY(trade1), dbPosition1.getQuantity());
 
         SecurityPositionTradeMapping mapping0 = tradeMappingRepository.findBySecurityPositionIdAndTradeId(dbPosition0.getId(),
                 dbTrade.getTradeId());

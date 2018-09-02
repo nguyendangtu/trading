@@ -12,6 +12,4 @@ import org.springframework.test.context.junit4.SpringRunner;
         H2JPAConfig.class})
 @ActiveProfiles("test")
 public abstract class BaseTest {
-
-
 }
