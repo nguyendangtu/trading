@@ -1,23 +1,36 @@
 package com.trading.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "SECURITY_POSITION")
 public class SecurityPosition {
+
     @Id
-    @Column(name = "ACCOUNT_NUMBER")
-    private String accountNumber;
+    @Column(name = "ID")
+    private long id;
+
+    @Column(name = "ACCOUNT")
+    private String account;
 
     @Column(name = "INSTRUMENT")
     private String instrument;
 
     @Column(name = "QUANTITY")
-    private Integer quantity;
+    private int quantity;
+
+    @Transient
+    List<String> trades;
+
+    public SecurityPosition(String account, String instrument) {
+        this.account = account;
+        this.instrument = instrument;
+    }
 }

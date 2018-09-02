@@ -8,7 +8,7 @@ public class PositionRule {
      * @param trade
      * @return
      */
-    public static final int QUANTITY_SIGN(final Trade trade) {
+    public static final int CALCULATE_QUANTITY(final Trade trade) {
         int flag = -1;
         switch (trade.getOperation()) {
             case NEW:
@@ -20,19 +20,7 @@ public class PositionRule {
                 break;
         }
         flag = TradeConstants.BUY == trade.getDirection().charValue() ? flag : (-1) * flag;
-        return flag;
-    }
-
-    /**
-     *
-     * @param incomingTrade
-     * @param existingTrade
-     * @return
-     */
-    public static final Trade MAX_VERSION(final Trade incomingTrade, final Trade existingTrade) {
-        if (null == incomingTrade) return existingTrade;
-        if (null == existingTrade) return incomingTrade;
-        return incomingTrade.getTradeVersion() > existingTrade.getTradeVersion() ? incomingTrade : existingTrade;
+        return flag * trade.getQuantity();
     }
 
 

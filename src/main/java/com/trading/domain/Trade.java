@@ -9,24 +9,25 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TRADE")
 public class Trade {
+
     @Id
     @Column(name = "TRADE_ID")
-    private Long tradeId;
+    private long tradeId;
 
-    @Column(name = "TRADE_VERSION")
-    private Integer tradeVersion;
+    @Column(name = "VERSION")
+    private int version;
 
     @Column(name = "SECURITY_IDENTIFIER")
     private String securityIdentifier;
 
     @Column(name = "QUANTITY")
-    private Integer quantity;
+    private int quantity;
 
     @Column(name = "DIRECTION")
     private Character direction;
 
-    @Column(name = "ACCOUNT_NUMBER")
-    private String accountNumber;
+    @Column(name = "ACCOUNT")
+    private String account;
 
     @Enumerated
     @Column(name = "OPERATION")
@@ -35,13 +36,13 @@ public class Trade {
     public Trade() {
     }
 
-    public Trade(Long tradeId, Integer tradeVersion, String securityIdentifier, Integer quantity, Character direction, String accountNumber, OPERATION_ENUM operation) {
+    public Trade(Long tradeId, int version, String securityIdentifier, int quantity, Character direction, String account, OPERATION_ENUM operation) {
         this.tradeId = tradeId;
-        this.tradeVersion = tradeVersion;
+        this.version = version;
         this.securityIdentifier = securityIdentifier;
         this.quantity = quantity;
         this.direction = direction;
-        this.accountNumber = accountNumber;
+        this.account = account;
         this.operation = operation;
     }
 

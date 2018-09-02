@@ -1,65 +1,133 @@
 package com.trading.service.impl;
 
 import com.trading.domain.SecurityPosition;
+import com.trading.domain.SecurityPositionTradeMapping;
 import com.trading.domain.Trade;
 import com.trading.repository.SecurityPositionRepository;
-import com.trading.repository.SecurityPositionTradingMappingRepository;
+import com.trading.repository.SecurityPositionTradeMappingRepository;
 import com.trading.repository.TradeRepository;
 import com.trading.rule.PositionRule;
 import com.trading.service.TradeEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import javax.transaction.Transactional;
 
 @Service("tradeEventService")
 public class TradeEventServiceImpl implements TradeEventService {
 
     @Autowired
-    private SecurityPositionTradingMappingRepository tradingAccountMappingRepository;
+    private SecurityPositionTradeMappingRepository tradeMappingRepository;
 
     @Autowired
     private TradeRepository tradeRepository;
 
     @Autowired
-    private SecurityPositionRepository securityPositionRepository;
+    private SecurityPositionRepository positionRepository;
 
     @Override
-    public SecurityPosition processIncomingEvent(Trade incomingTrade) {
-        Long tradeId = incomingTrade.getTradeId();
-        String accountNumber = incomingTrade.getAccountNumber();
-        String securityIdentifier = incomingTrade.getSecurityIdentifier();
-        Trade existingTrade = tradeRepository.findByTradeId(tradeId);
-        Trade finalTrade = PositionRule.MAX_VERSION(incomingTrade, existingTrade);
-        //tradeRepository.save(finalTrade);//note
-        List<String> tradeIds = tradeRepository.getAllTradeIDByAccountNumberAndSecurityIdentifier(accountNumber, securityIdentifier);
-        SecurityPosition securityPosition = securityPositionRepository.findByAccountNumber(accountNumber);
-        if (tradeIds.contains(tradeId)) {
-            Integer quantity = securityPosition.getQuantity() + finalTrade.getQuantity() * PositionRule.QUANTITY_SIGN(finalTrade);
-            securityPosition.setQuantity(quantity);
+    @Transactional
+    public void processIncomingEvent(Trade incomingTrade) {
+        Trade existingTrade = tradeRepository.findByTradeId(incomingTrade.getTradeId());
 
-        } else {
-
+        //existingTrade is not existed
+        if (existingTrade == null) {
+            handleNotExistingTrade(incomingTrade);
+            return;
         }
-      //  SecurityPosition securityPosition = securityPositionRepository.findByAccountNumber(accountNumber);
 
+        if (incomingTrade.getVersion() <= existingTrade.getVersion()) {
+            //ignore incoming trade because the version is not bigger than the existing one
+            return;
+        }
 
-        //select mapping base on trade id,acc.
-        //1.If existing account and trade id, do nothing.
-        //2. If existing ACC, add trade ID, if not existing account. remove current
-        //mapping, and new mapping with new trade id and new account.
-        // find existing account, and update to new account on security position.
+        SecurityPosition existingPosition = positionRepository.findByAccountAndInstrument(existingTrade.getAccount(),
+                                                                                          existingTrade.getSecurityIdentifier());
+        if (existingPosition == null) {
+            throw new RuntimeException("Some error happened. Must have existing position when having existing trade.");
+        }
 
-        //Convert Trade to SecurityPosition
+        boolean samePosition = isIncomingTradeHasTheSamePositionWithExisingTrade(incomingTrade, existingTrade);
+        int incomingQuantity = PositionRule.CALCULATE_QUANTITY(incomingTrade);
+        int existingQuantity = PositionRule.CALCULATE_QUANTITY(existingTrade);
 
-        //calculate quantity on ACCOUNT
-        //update security position
-        // table
-        //update mapping
+        if (samePosition) {
+            handleExistingTradeAndSamePosition(existingPosition, incomingQuantity, existingQuantity);
+        } else {
+            handleExistingTradeAndNotSamePosition(incomingTrade,
+                                                  existingPosition,
+                                                  incomingQuantity,
+                                                  existingQuantity);
+        }
 
-
-        return null;
+        //update existing trade by incoming trade
+        tradeRepository.save(incomingTrade);
     }
 
+    void handleNotExistingTrade(Trade incomingTrade) {
+        //save new trade
+        tradeRepository.save(incomingTrade);
+
+        int incomingQuantity = PositionRule.CALCULATE_QUANTITY(incomingTrade);
+
+        //find position if exists
+        SecurityPosition incomingPosition = positionRepository.findByAccountAndInstrument(incomingTrade.getAccount(),
+                                                                                          incomingTrade.getSecurityIdentifier());
+
+        //create a new position if not existed
+        incomingPosition = handleNewPosition(incomingTrade, incomingQuantity, incomingPosition);
+
+        //Save position-trade mapping
+        SecurityPositionTradeMapping mapping = new SecurityPositionTradeMapping(incomingPosition.getId(),
+                                                                                incomingTrade.getTradeId());
+        tradeMappingRepository.save(mapping);
+    }
+
+    void handleExistingTradeAndSamePosition(SecurityPosition existingPosition, int incomingQuantity,
+                                                    int existingQuantity) {
+        int changedQuantity = incomingQuantity - existingQuantity;
+        positionRepository.updateQuantity(existingPosition.getId(), changedQuantity);
+    }
+
+    void handleExistingTradeAndNotSamePosition(Trade incomingTrade,
+                                                       SecurityPosition existingPosition,
+                                                       int incomingQuantity,
+                                                       int existingQuantity) {
+        SecurityPosition incomingPosition = positionRepository.findByAccountAndInstrument(incomingTrade.getAccount(),
+                                                                                          incomingTrade.getSecurityIdentifier());
+        incomingPosition = handleNewPosition(incomingTrade, incomingQuantity, incomingPosition);
+
+        //Save position-trade mapping
+        SecurityPositionTradeMapping mapping = tradeMappingRepository.findBySecurityPositionIdAndTradeId(
+                incomingPosition.getId(),
+                incomingTrade.getTradeId());
+        if (mapping == null) {
+            mapping = new SecurityPositionTradeMapping(incomingPosition.getId(),
+                                                       incomingTrade.getTradeId());
+            tradeMappingRepository.save(mapping);
+        }
+
+        //process remove quantity for existing position
+        positionRepository.updateQuantity(existingPosition.getId(), -existingQuantity);
+    }
+
+    SecurityPosition handleNewPosition(Trade incomingTrade,
+                                               int incomingQuantity,
+                                               SecurityPosition incomingPosition) {
+        if (incomingPosition == null) {
+            incomingPosition = new SecurityPosition(incomingTrade.getAccount(),
+                                                    incomingTrade.getSecurityIdentifier());
+            incomingPosition.setQuantity(incomingQuantity);
+            positionRepository.save(incomingPosition);
+        } else {
+            positionRepository.updateQuantity(incomingPosition.getId(), incomingQuantity);
+        }
+        return incomingPosition;
+    }
+
+    boolean isIncomingTradeHasTheSamePositionWithExisingTrade(Trade incoming, Trade existing) {
+        return incoming.getAccount().equals(existing.getAccount()) &&
+               incoming.getSecurityIdentifier().equals(existing.getSecurityIdentifier());
+    }
 
 }
