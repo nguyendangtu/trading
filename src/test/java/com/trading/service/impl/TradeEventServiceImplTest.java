@@ -29,7 +29,7 @@ public class TradeEventServiceImplTest extends BaseTest {
 
     @Test
     public void processIncomingEvent_firstTrade_positive() {
-        Trade trade = new Trade(1234L, 1, "XYZ", 100, 'B', "ACC-1234", OPERATION_ENUM.NEW);
+        Trade trade = trades.get(0);
         tradeEventService.processIncomingEvent(trade);
 
         Trade dbTrade = tradeRepository.findByTradeId(1234L);
