@@ -1,0 +1,3 @@
+com\trading\config\H2JPAConfig.class
+com\trading\service\impl\TradeEventServiceImplTest.class
+com\trading\BaseTest.class
