@@ -37,6 +37,32 @@ public class TradeInput {
         Trade trade24 = new Trade(1155L, 1, "KLO", 600, TradeConstants.SELL, "ACC-9045", OPERATION_ENUM.NEW);
         Trade trade25 = new Trade(1155L, 2, "KLO", 0, TradeConstants.BUY, "ACC-9045", OPERATION_ENUM.CANCEL);
 
+        trades.add(trade0);
+        trades.add(trade1);
+        trades.add(trade2);
+        trades.add(trade3);
+        trades.add(trade4);
+        trades.add(trade5);
+        trades.add(trade6);
+        trades.add(trade7);
+        trades.add(trade8);
+        trades.add(trade9);
+        trades.add(trade10);
+        trades.add(trade11);
+        trades.add(trade12);
+        trades.add(trade13);
+        trades.add(trade14);
+        trades.add(trade15);
+        trades.add(trade16);
+        trades.add(trade17);
+        trades.add(trade18);
+        trades.add(trade19);
+        trades.add(trade20);
+        trades.add(trade21);
+        trades.add(trade22);
+        trades.add(trade23);
+        trades.add(trade24);
+        trades.add(trade25);
         return trades;
     }
 }
